@@ -1,33 +1,40 @@
+{{-- Layout principal para la gestión de sesiones activas --}}
 <x-app-layout>
+    {{-- Slot para el encabezado de la página --}}
     <x-slot name="header">
         <h2 class="font-bold text-3xl text-gray-900">📱 Gestión de Sesiones</h2>
     </x-slot>
 
+    {{-- Contenedor principal con padding vertical --}}
     <div class="py-12">
         <div class="max-w-6xl mx-auto space-y-8 px-6">
+            {{-- Tarjeta principal con fondo blanco y sombra --}}
             <div class="bg-white rounded-3xl shadow-2xl p-10 border border-gray-200">
+                {{-- Encabezado de la sección --}}
                 <div class="text-center mb-12">
                     <h1 class="text-4xl font-black text-gray-900 mb-4">Sesiones Activas</h1>
                     <p class="text-xl text-gray-600">Controla tus dispositivos conectados al sistema</p>
                 </div>
 
+                {{-- Mensaje de éxito si se cerró sesión correctamente --}}
                 @if (session('success'))
                     <div class="bg-green-100 border border-green-200 text-green-800 p-6 rounded-2xl shadow-lg">
                         {{ session('success') }}
                     </div>
                 @endif
 
+                {{-- Mensaje de error si hubo un problema --}}
                 @if (session('error'))
                     <div class="bg-red-100 border border-red-200 text-red-800 p-6 rounded-2xl shadow-lg">
                         {{ session('error') }}
                     </div>
                 @endif
 
-                <!-- Cerrar otras sesiones -->
+                {{-- Formulario para cerrar todas las otras sesiones (menos la actual) --}}
                 <div class="bg-gradient-to-r from-orange-50 to-red-50 border border-orange-200 rounded-3xl p-8 shadow-xl">
                     <h3 class="text-2xl font-bold text-gray-900 mb-6">🔒 Cerrar otras sesiones</h3>
                     <form method="POST" action="{{ route('sessions.logout-other') }}" class="space-y-4">
-                        @csrf
+                        @csrf {{-- Token CSRF obligatorio --}}
                         <div>
                             <label class="block text-gray-900 font-bold mb-3">Contraseña actual</label>
                             <input type="password" name="password" required 
@@ -42,7 +49,7 @@
                     </form>
                 </div>
 
-                <!-- Lista de sesiones -->
+                {{-- Tabla de sesiones activas y remotas --}}
                 <div class="bg-white border border-gray-200 rounded-3xl shadow-2xl overflow-hidden">
                     <div class="bg-gradient-to-r from-blue-600 to-indigo-600 p-6">
                         <h3 class="text-2xl font-bold text-white">📋 Sesiones recientes</h3>
@@ -59,10 +66,12 @@
                                 </tr>
                             </thead>
                             <tbody class="divide-y divide-gray-200">
+                                {{-- Recorremos todas las sesiones activas --}}
                                 @forelse($sessions as $session)
                                     <tr class="hover:bg-gray-50 transition-colors">
                                         <td class="px-8 py-6">
                                             <div class="flex items-center">
+                                                {{-- Icono de estado de la sesión --}}
                                                 <div class="w-12 h-12 bg-gradient-to-r {{ $session->is_current ? 'from-green-500 to-emerald-500' : 'from-gray-400 to-gray-500' }} rounded-2xl flex items-center justify-center shadow-lg">
                                                     <span class="text-xl font-bold text-white">●</span>
                                                 </div>
@@ -82,6 +91,7 @@
                                             </span>
                                         </td>
                                         <td class="px-8 py-6">
+                                            {{-- Si la sesión no es la actual, permite cerrarla --}}
                                             @if(!$session->is_current)
                                                 <form method="POST" action="{{ route('sessions.destroy', $session->id) }}" class="inline">
                                                     @csrf @method('DELETE')
@@ -94,6 +104,7 @@
                                             @endif
                                         </td>
                                     </tr>
+                                {{-- Si no hay sesiones remotas, muestra mensaje --}}
                                 @empty
                                     <tr>
                                         <td colspan="5" class="px-8 py-12 text-center">
@@ -113,6 +124,7 @@
                 </div>
             </div>
 
+            {{-- Botón para volver al dashboard principal --}}
             <div class="text-center">
                 <a href="{{ route('dashboard') }}" class="bg-gray-600 hover:bg-gray-700 text-white px-12 py-4 rounded-2xl font-bold text-xl shadow-xl hover:shadow-gray-500/50 transition-all">
                     ← Volver Dashboard
